@@ -39,13 +39,18 @@ public class DatoController : ControllerBase
         var jsonReducido = await _datoServicio.ReducirJson(jsonCompleto.ToArray());
         if (jsonReducido == null || !jsonReducido.Any())
         {
-            return RespuestaAPI.CrearRespuestaError("No se encontraron datos para reducir.");
+            return RespuestaAPI.CrearRespuestaError("No se encontraron datos reducidos para calcular el promedio.");
         }
-        var resultado = await _datoServicio.CalcularPromedioSujetos(jsonReducido);
-        if (resultado == null || !resultado.Any())
+        var promedios = await _datoServicio.CalcularPromedioSujetos(jsonReducido);
+        if (promedios == null || !promedios.Any())
         {
-            return RespuestaAPI.CrearRespuestaError("No se encontraron datos para calcular el promedio.");
+            return RespuestaAPI.CrearRespuestaError("No se encontraron promedios calculados.");
         }
-        return RespuestaAPI.CrearRespuestaExitosa(resultado);
+        var respuestaFastAPI = await _datoServicio.EnviarDatosAsync(promedios);
+        if (respuestaFastAPI == null)
+        {
+            return RespuestaAPI.CrearRespuestaError("Error al enviar datos a FastAPI.");
+        }
+        return RespuestaAPI.CrearRespuestaExitosa(respuestaFastAPI);
     }
 }

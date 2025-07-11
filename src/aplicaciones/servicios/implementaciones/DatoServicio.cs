@@ -5,11 +5,17 @@ using GPScript.NET.src.aplicaciones.DTOs.promedioSujeto;
 using GPScript.NET.src.aplicaciones.mapeadores.jsonMapeadores;
 using GPScript.NET.src.aplicaciones.mapeadores.sujetoMapeadores;
 using GPScript.NET.src.aplicaciones.servicios.interfaces;
+using GPScript.NET.src.infraestructura.repositorios.interfaces;
 
 namespace GPScript.NET.src.aplicaciones.servicios.implementaciones;
 
 public class DatoServicio : IDatoServicio
 {
+    private readonly IFastAPIRepositorio _fastAPIRepositorio;
+    public DatoServicio(IFastAPIRepositorio fastAPIRepositorio)
+    {
+        _fastAPIRepositorio = fastAPIRepositorio;
+    }
     public async Task<IEnumerable<JsonReducido>> ReducirJson(JsonCompleto[] jsonCompleto)
     {
         List<string> IGNORAR_PREFIJOS = new List<string> { "ADI", "OTR", "SPD" };
@@ -20,11 +26,11 @@ public class DatoServicio : IDatoServicio
 
         foreach (var json in jsonCompleto)
         {
-             if (!json.Estados.Any(e => e.EstadoComercializacion == 1) ||
-                !json.Estados.Any(e => ESTADOS_VALIDOS.Contains(e.EstadoComercializacion)) ||
-                json.Facturas.Any(f => f.EstadosFactura.Any(e => ESTADO_FACTURA_INVALIDOS.Contains(e.Estado))) ||
-                !json.Facturas.Any() ||
-                IGNORAR_PREFIJOS.Any(json.CodigoCotizacion.StartsWith))
+            if (!json.Estados.Any(e => e.EstadoComercializacion == 1) ||
+               !json.Estados.Any(e => ESTADOS_VALIDOS.Contains(e.EstadoComercializacion)) ||
+               json.Facturas.Any(f => f.EstadosFactura.Any(e => ESTADO_FACTURA_INVALIDOS.Contains(e.Estado))) ||
+               !json.Facturas.Any() ||
+               IGNORAR_PREFIJOS.Any(json.CodigoCotizacion.StartsWith))
             {
                 continue;
             }
@@ -88,6 +94,19 @@ public class DatoServicio : IDatoServicio
             ));
         }
         return await Task.FromResult(promedios);
+    }
+    public async Task<IEnumerable<PromedioSujeto>> EnviarDatosAsync(IEnumerable<PromedioSujeto> jsonData)
+    {
+        if (jsonData == null || !jsonData.Any())
+        {
+            throw new ArgumentException("Los datos a enviar no pueden ser nulos o vacíos.");
+        }
+        var resultado = await _fastAPIRepositorio.EnviarDatosAsync(jsonData);
+        if (resultado == null)
+        {
+            throw new Exception("Error al enviar los datos al repositorio.");
+        }
+        return resultado;
     }
     public static DateOnly convertirFecha(string fecha)
     {
