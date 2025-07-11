@@ -1,6 +1,6 @@
 using GPScript.NET.src.aplicaciones.DTOs.jsonDTOs;
 
-namespace GPScript.NET.src.aplicaciones.mapeadores.JsonMapeadores;
+namespace GPScript.NET.src.aplicaciones.mapeadores.jsonMapeadores;
 
 public class JsonCompletoReductor
 {
