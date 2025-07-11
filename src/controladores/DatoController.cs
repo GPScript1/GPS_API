@@ -29,4 +29,23 @@ public class DatoController : ControllerBase
         }
         return RespuestaAPI.CrearRespuestaExitosa(resultado);
     }
+    [HttpPost("promedio")]
+    public async Task<IActionResult> CalcularPromedioSujetos([FromBody] IEnumerable<JsonCompleto> jsonCompleto)
+    {
+        if (jsonCompleto == null || !jsonCompleto.Any())
+        {
+            return RespuestaAPI.CrearRespuestaError("No se proporcionaron datos para calcular el promedio.");
+        }
+        var jsonReducido = await _datoServicio.ReducirJson(jsonCompleto.ToArray());
+        if (jsonReducido == null || !jsonReducido.Any())
+        {
+            return RespuestaAPI.CrearRespuestaError("No se encontraron datos para reducir.");
+        }
+        var resultado = await _datoServicio.CalcularPromedioSujetos(jsonReducido);
+        if (resultado == null || !resultado.Any())
+        {
+            return RespuestaAPI.CrearRespuestaError("No se encontraron datos para calcular el promedio.");
+        }
+        return RespuestaAPI.CrearRespuestaExitosa(resultado);
+    }
 }
