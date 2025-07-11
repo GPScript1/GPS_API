@@ -1,7 +1,9 @@
 ﻿using System.Globalization;
 using System.Linq;
 using GPScript.NET.src.aplicaciones.DTOs.jsonDTOs;
-using GPScript.NET.src.aplicaciones.mapeadores.JsonMapeadores;
+using GPScript.NET.src.aplicaciones.DTOs.promedioSujeto;
+using GPScript.NET.src.aplicaciones.mapeadores.jsonMapeadores;
+using GPScript.NET.src.aplicaciones.mapeadores.sujetoMapeadores;
 using GPScript.NET.src.aplicaciones.servicios.interfaces;
 
 namespace GPScript.NET.src.aplicaciones.servicios.implementaciones;
@@ -55,6 +57,37 @@ public class DatoServicio : IDatoServicio
             jsonReducidos.Add(JsonClienteReductor.Reducir(jsonReducido, jsonReducido.LiderComercial));
         }
         return await Task.FromResult(jsonReducidos);
+    }
+    public async Task<IEnumerable<PromedioSujeto>> CalcularPromedioSujetos(IEnumerable<JsonReducido> jsonReducidos)
+    {
+        var promedios = new List<PromedioSujeto>();
+        var entesSinRepetir = jsonReducidos
+            .GroupBy(j => j.NombreEnte)
+            .Select(g => g.First())
+            .ToList();
+        foreach (var ente in entesSinRepetir)
+        {
+            double promedioInicioComFinCom = jsonReducidos
+                .Where(j => j.NombreEnte == ente.NombreEnte)
+                .Average(j => j.DiasInicioComFinCom);
+            double promedioFinComInicioFactura = jsonReducidos
+                .Where(j => j.NombreEnte == ente.NombreEnte)
+                .Average(j => j.DiasFinComInicioFactura);
+            double promedioInicioFacturaFinPagado = jsonReducidos
+                .Where(j => j.NombreEnte == ente.NombreEnte)
+                .Average(j => j.DiasInicioFacturaFinPagado);
+            double promedioInicioComFinPagado = jsonReducidos
+                .Where(j => j.NombreEnte == ente.NombreEnte)
+                .Average(j => j.DiasInicioComFinPagado);
+            promedios.Add(SujetoMapeador.MapearSujeto(
+                ente,
+                (int)promedioInicioComFinCom,
+                (int)promedioFinComInicioFactura,
+                (int)promedioInicioFacturaFinPagado,
+                (int)promedioInicioComFinPagado
+            ));
+        }
+        return await Task.FromResult(promedios);
     }
     public static DateOnly convertirFecha(string fecha)
     {
