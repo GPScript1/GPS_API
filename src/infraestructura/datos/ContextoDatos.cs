@@ -1,6 +1,10 @@
-﻿namespace GPScript.NET.src.infraestructura.datos;
+﻿using Microsoft.EntityFrameworkCore;
 
-public class ContextoDatos
+namespace GPScript.NET.src.infraestructura.datos;
+
+public class ContextoDatos(DbContextOptions<ContextoDatos> options) : DbContext(options)
 {
 
+    
+    
 }
