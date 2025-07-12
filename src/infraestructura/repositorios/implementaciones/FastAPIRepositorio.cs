@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using GPScript.NET.src.aplicaciones.DTOs.fastAPI;
 using GPScript.NET.src.aplicaciones.DTOs.promedioSujeto;
 using GPScript.NET.src.infraestructura.repositorios.interfaces;
 
@@ -18,7 +19,7 @@ public class FastAPIRepositorio : IFastAPIRepositorio
         _apiKeyName = Environment.GetEnvironmentVariable("FASTAPI_API_KEY_NAME") ?? string.Empty;
     }
 
-    public async Task<IEnumerable<PromedioSujeto>> EnviarDatosAsync(IEnumerable<PromedioSujeto> jsonData)
+    public async Task<IEnumerable<ClasificadorRespuesta>> EnviarDatosAsync(IEnumerable<PromedioSujeto> jsonData)
     {
         _httpClient.DefaultRequestHeaders.Clear();
         _httpClient.DefaultRequestHeaders.Add("api-key", _apiKey);
@@ -27,13 +28,12 @@ public class FastAPIRepositorio : IFastAPIRepositorio
 
         var json = JsonSerializer.Serialize(dataList);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
-        var response = await _httpClient.PostAsync(Environment.GetEnvironmentVariable("FASTAPI_URL") + "ping", content);
+        var response = await _httpClient.PostAsync(Environment.GetEnvironmentVariable("FASTAPI_URL") + "cluster", content);
         
         if (response.IsSuccessStatusCode)
         {
             var responseBody = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<List<PromedioSujeto>>(responseBody);
-
+            return JsonSerializer.Deserialize<List<ClasificadorRespuesta>>(responseBody);
         }
         
         throw new Exception($"Error al enviar datos: {response.ReasonPhrase}");

@@ -1,4 +1,5 @@
-﻿using GPScript.NET.src.aplicaciones.DTOs.jsonDTOs;
+﻿using GPScript.NET.src.aplicaciones.DTOs.fastAPI;
+using GPScript.NET.src.aplicaciones.DTOs.jsonDTOs;
 using GPScript.NET.src.aplicaciones.DTOs.promedioSujeto;
 
 namespace GPScript.NET.src.aplicaciones.servicios.interfaces;
@@ -6,6 +7,6 @@ namespace GPScript.NET.src.aplicaciones.servicios.interfaces;
 public interface IDatoServicio
 {
     Task<IEnumerable<JsonReducido>> ReducirJson(JsonCompleto[] jsonEntrada);
-    Task<IEnumerable<PromedioSujeto>> CalcularPromedioSujetos(IEnumerable<JsonReducido> jsonReducido);
-    Task<IEnumerable<PromedioSujeto>> EnviarDatosAsync(IEnumerable<PromedioSujeto> jsonData);
+    Task<IEnumerable<PromedioSujeto>> CalcularPromedioSujetos(JsonCompleto[] jsonCompleto);
+    Task<IEnumerable<ClasificadorRespuesta>> EnviarDatosAsync(IEnumerable<PromedioSujeto> jsonData);
 }

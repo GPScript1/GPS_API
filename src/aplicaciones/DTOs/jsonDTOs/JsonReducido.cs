@@ -7,4 +7,5 @@ public class JsonReducido
     public int DiasFinComInicioFactura { get; set; }
     public int DiasInicioFacturaFinPagado { get; set; }
     public int DiasInicioComFinPagado { get; set; }
+    public int? ValorComercializacion { get; set; }
 }

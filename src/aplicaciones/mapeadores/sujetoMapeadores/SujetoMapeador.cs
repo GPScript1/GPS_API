@@ -9,7 +9,9 @@ public static class SujetoMapeador
                                               int promedioInicioComFinCom,
                                               int promedioFinComInicioFactura,
                                               int promedioInicioFacturaFinPagado,
-                                              int promedioInicioComFinPagado)
+                                              int promedioInicioComFinPagado,
+                                              int valorTotalComercializaciones,
+                                              int cantidadComercializaciones)
     {
         return new PromedioSujeto
         {
@@ -17,7 +19,9 @@ public static class SujetoMapeador
             PromedioInicioComFinCom = promedioInicioComFinCom,
             PromedioFinComInicioFactura = promedioFinComInicioFactura,
             PromedioInicioFacturaFinPagado = promedioInicioFacturaFinPagado,
-            PromedioInicioComFinPagado = promedioInicioComFinPagado
+            PromedioInicioComFinPagado = promedioInicioComFinPagado,
+            ValorTotalComercializaciones = valorTotalComercializaciones,
+            CantidadComercializaciones = cantidadComercializaciones
         };
     }
 }

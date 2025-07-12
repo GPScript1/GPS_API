@@ -7,4 +7,6 @@ public class PromedioSujeto
     public int PromedioFinComInicioFactura { get; set; }
     public int PromedioInicioFacturaFinPagado { get; set; }
     public int PromedioInicioComFinPagado { get; set; }
+    public int CantidadComercializaciones { get; set; }
+    public int ValorTotalComercializaciones { get; set; } = 0;
 }

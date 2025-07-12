@@ -27,30 +27,21 @@ public class DatoController : ControllerBase
         {
             return RespuestaAPI.CrearRespuestaError("No se encontraron datos para reducir.");
         }
-        return RespuestaAPI.CrearRespuestaExitosa(resultado);
+        var contador = resultado.Count();
+        return RespuestaAPI.CrearRespuestaExitosa(new { contador, resultado });
     }
     [HttpPost("promedio")]
-    public async Task<IActionResult> CalcularPromedioSujetos([FromBody] IEnumerable<JsonCompleto> jsonCompleto)
+    public async Task<IActionResult> CalcularPromedioSujetos([FromBody] JsonCompleto[] jsonCompleto)
     {
         if (jsonCompleto == null || !jsonCompleto.Any())
         {
             return RespuestaAPI.CrearRespuestaError("No se proporcionaron datos para calcular el promedio.");
         }
-        var jsonReducido = await _datoServicio.ReducirJson(jsonCompleto.ToArray());
-        if (jsonReducido == null || !jsonReducido.Any())
-        {
-            return RespuestaAPI.CrearRespuestaError("No se encontraron datos reducidos para calcular el promedio.");
-        }
-        var promedios = await _datoServicio.CalcularPromedioSujetos(jsonReducido);
+        var promedios = await _datoServicio.CalcularPromedioSujetos(jsonCompleto);
         if (promedios == null || !promedios.Any())
         {
             return RespuestaAPI.CrearRespuestaError("No se encontraron promedios calculados.");
         }
-        var respuestaFastAPI = await _datoServicio.EnviarDatosAsync(promedios);
-        if (respuestaFastAPI == null)
-        {
-            return RespuestaAPI.CrearRespuestaError("Error al enviar datos a FastAPI.");
-        }
-        return RespuestaAPI.CrearRespuestaExitosa(respuestaFastAPI);
+        return RespuestaAPI.CrearRespuestaExitosa(promedios);
     }
 }
