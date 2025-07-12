@@ -1,6 +1,9 @@
-﻿namespace GPScript.NET.src.infraestructura.datos;
+﻿using GPScript.NET.src.dominio.modelos;
+using Microsoft.EntityFrameworkCore;
 
-public class ContextoDatos
+namespace GPScript.NET.src.infraestructura.datos;
+
+public class ContextoDatos(DbContextOptions<ContextoDatos> options) : DbContext(options)
 {
-
+    public DbSet<DatosDePredicciones> DatosDePredicciones { get; set; }
 }
