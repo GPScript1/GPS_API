@@ -9,4 +9,5 @@ public interface IDatoServicio
     Task<IEnumerable<JsonReducido>> ReducirJson(JsonCompleto[] jsonEntrada);
     Task<IEnumerable<PromedioSujeto>> CalcularPromedioSujetos(JsonCompleto[] jsonCompleto);
     Task<IEnumerable<ClasificadorRespuesta>> EnviarDatosAsync(IEnumerable<PromedioSujeto> jsonData);
+    Task<string> EntrenarModeloAsync(JsonCompleto[] jsonCompleto);
 }

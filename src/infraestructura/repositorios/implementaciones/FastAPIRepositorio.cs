@@ -29,13 +29,30 @@ public class FastAPIRepositorio : IFastAPIRepositorio
         var json = JsonSerializer.Serialize(dataList);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
         var response = await _httpClient.PostAsync(Environment.GetEnvironmentVariable("FASTAPI_URL") + "cluster", content);
-        
+
         if (response.IsSuccessStatusCode)
         {
             var responseBody = await response.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<List<ClasificadorRespuesta>>(responseBody);
         }
-        
+
         throw new Exception($"Error al enviar datos: {response.ReasonPhrase}");
+    }
+    public async Task<string> EntrenarModeloAsync(EntrenarModelo jsonData)
+    {
+        _httpClient.DefaultRequestHeaders.Clear();
+        _httpClient.DefaultRequestHeaders.Add("api-key", _apiKey);
+        _httpClient.DefaultRequestHeaders.Add("api-key-name", _apiKeyName);
+        var json = JsonSerializer.Serialize(jsonData);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        var response = await _httpClient.PostAsync(Environment.GetEnvironmentVariable("FASTAPI_URL") + "train", content);
+
+        if (response.IsSuccessStatusCode)
+        {
+            return await response.Content.ReadAsStringAsync();
+        }
+
+        throw new Exception($"Error al entrenar modelo: {response.ReasonPhrase}");
+
     }
 }

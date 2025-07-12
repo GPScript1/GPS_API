@@ -1,7 +1,6 @@
 ﻿using GPScript.NET.src.aplicaciones.DTOs.jsonDTOs;
 using GPScript.NET.src.aplicaciones.servicios.interfaces;
 using GPScript.NET.src.controladores.ayudadores;
-using GPScript.NET.src.infraestructura.repositorios.interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GPScript.NET.src.controladores;

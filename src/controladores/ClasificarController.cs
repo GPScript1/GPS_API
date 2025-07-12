@@ -17,13 +17,13 @@ public class ClasificarController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> ClasificarJson([FromBody] JsonCompleto[] jsonCompletos)
+    public async Task<IActionResult> ClasificarJson([FromBody] JsonCompleto[] jsonCompleto)
     {
-        if (jsonCompletos == null || !jsonCompletos.Any())
+        if (jsonCompleto == null || !jsonCompleto.Any())
         {
             return RespuestaAPI.CrearRespuestaError("No se proporcionaron datos para calcular el promedio.");
         }
-        var promedios = await _datoServicio.CalcularPromedioSujetos(jsonCompletos);
+        var promedios = await _datoServicio.CalcularPromedioSujetos(jsonCompleto);
         if (promedios == null || !promedios.Any())
         {
             return RespuestaAPI.CrearRespuestaError("No se encontraron promedios calculados.");

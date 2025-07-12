@@ -168,6 +168,104 @@ public class DatoServicio : IDatoServicio
         }
         return resultado;
     }
+    public async Task<string> EntrenarModeloAsync(JsonCompleto[] jsonCompleto)
+    {
+        List<string> IGNORAR_PREFIJOS = new List<string> { "ADI", "OTR", "SPD" };
+        List<int> ESTADOS_VALIDOS = new List<int> { 0, 1, 3 };
+        List<int> ESTADO_FACTURA_INVALIDOS = new List<int> { 5, 6, 7 };
+
+        List<JsonReducido> jsonReducidos = new List<JsonReducido>();
+        List<ClienteValorCantidad> clienteValorCantidades = new List<ClienteValorCantidad>();
+
+        foreach (var json in jsonCompleto)
+        {
+            if (!json.Estados.Any(e => e.EstadoComercializacion == 1) ||
+               !json.Estados.Any(e => ESTADOS_VALIDOS.Contains(e.EstadoComercializacion)) ||
+               json.Facturas.Any(f => f.EstadosFactura.Any(e => ESTADO_FACTURA_INVALIDOS.Contains(e.Estado))) ||
+               !json.Facturas.Any() ||
+               IGNORAR_PREFIJOS.Any(json.CodigoCotizacion.StartsWith))
+            {
+                continue;
+            }
+            var fechasEstados = json.Estados
+                .Where(e => ESTADOS_VALIDOS.Contains(e.EstadoComercializacion))
+                .Select(e => convertirFecha(e.Fecha))
+                .OrderBy(f => f)
+                .ToList();
+            var estados = json.Estados
+                .Where(e => ESTADOS_VALIDOS.Contains(e.EstadoComercializacion))
+                .OrderBy(e => convertirFecha(e.Fecha))
+                .Select(e => e.EstadoComercializacion)
+                .ToList();
+            var fechasFacturasPadre = json.Facturas
+                .Select(f => convertirFecha(f.FechaFacturacion))
+                .OrderBy(f => f)
+                .ToList();
+            var fechasFacturas = json.Facturas
+                .SelectMany(f => f.EstadosFactura)
+                .Select(e => convertirFecha(e.Fecha))
+                .OrderBy(f => f)
+                .ToList();
+            var jsonReducido = JsonCompletoReductor.ReducirJson(
+                json,
+                estados.FirstOrDefault(), estados.LastOrDefault(),
+                fechasEstados.FirstOrDefault() < convertirFecha(json.FechaInicio) ? fechasEstados.FirstOrDefault() : convertirFecha(json.FechaInicio), fechasEstados.LastOrDefault(),
+                fechasFacturas.FirstOrDefault() < fechasFacturasPadre.FirstOrDefault() ? fechasFacturas.FirstOrDefault() : fechasFacturasPadre.FirstOrDefault(), fechasFacturas.LastOrDefault());
+
+            clienteValorCantidades.Add(new ClienteValorCantidad { Nombre = jsonReducido.NombreCliente, ValorComercializacion = jsonReducido.ValorFinal });
+            clienteValorCantidades.Add(new ClienteValorCantidad { Nombre = jsonReducido.LiderComercial, ValorComercializacion = 0 });
+
+            jsonReducidos.Add(JsonClienteReductor.Reducir(jsonReducido, jsonReducido.NombreCliente));
+            jsonReducidos.Add(JsonClienteReductor.Reducir(jsonReducido, jsonReducido.LiderComercial));
+        }
+
+        var promedios = new List<PromedioSujeto>();
+        var entesSinRepetir = jsonReducidos
+            .GroupBy(j => j.NombreEnte)
+            .Select(g => g.First())
+            .ToList();
+        foreach (var ente in entesSinRepetir)
+        {
+            double promedioInicioComFinCom = jsonReducidos
+                .Where(j => j.NombreEnte == ente.NombreEnte)
+                .Average(j => j.DiasInicioComFinCom);
+            double promedioFinComInicioFactura = jsonReducidos
+                .Where(j => j.NombreEnte == ente.NombreEnte)
+                .Average(j => j.DiasFinComInicioFactura);
+            double promedioInicioFacturaFinPagado = jsonReducidos
+                .Where(j => j.NombreEnte == ente.NombreEnte)
+                .Average(j => j.DiasInicioFacturaFinPagado);
+            double promedioInicioComFinPagado = jsonReducidos
+                .Where(j => j.NombreEnte == ente.NombreEnte)
+                .Average(j => j.DiasInicioComFinPagado);
+            int valorTotalAcumulado = clienteValorCantidades
+                .Where(c => c.Nombre == ente.NombreEnte)
+                .Sum(c => c.ValorComercializacion);
+            int cantidadDeComercializaciones = clienteValorCantidades
+                .Where(c => c.Nombre == ente.NombreEnte)
+                .Count();
+            promedios.Add(SujetoMapeador.MapearSujeto(
+                ente,
+                (int)promedioInicioComFinCom,
+                (int)promedioFinComInicioFactura,
+                (int)promedioInicioFacturaFinPagado,
+                (int)promedioInicioComFinPagado,
+                valorTotalAcumulado,
+                cantidadDeComercializaciones
+            ));
+        }
+        var entrenarModelo = new EntrenarModelo
+        {
+            ClientePromedio = promedios,
+            Comercializaciones = jsonReducidos
+        };
+        var resultado = await _fastAPIRepositorio.EntrenarModeloAsync(entrenarModelo);
+        if (string.IsNullOrEmpty(resultado))
+        {
+            throw new Exception("Error al entrenar el modelo.");
+        }
+        return resultado;
+    }
     public static DateOnly convertirFecha(string fecha)
     {
         return DateOnly.ParseExact(fecha, "dd/MM/yyyy", CultureInfo.InvariantCulture);
