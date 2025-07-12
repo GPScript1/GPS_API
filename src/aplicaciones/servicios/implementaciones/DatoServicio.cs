@@ -168,7 +168,7 @@ public class DatoServicio : IDatoServicio
         }
         return resultado;
     }
-    public async Task<string> EntrenarModeloAsync(JsonCompleto[] jsonCompleto)
+    public async Task<IEnumerable<PrediccionesRespuesta>> EntrenarModeloAsync(JsonCompleto[] jsonCompleto)
     {
         List<string> IGNORAR_PREFIJOS = new List<string> { "ADI", "OTR", "SPD" };
         List<int> ESTADOS_VALIDOS = new List<int> { 0, 1, 3 };
@@ -260,7 +260,7 @@ public class DatoServicio : IDatoServicio
             Comercializaciones = jsonReducidos
         };
         var resultado = await _fastAPIRepositorio.EntrenarModeloAsync(entrenarModelo);
-        if (string.IsNullOrEmpty(resultado))
+        if (resultado == null || !resultado.Any())
         {
             throw new Exception("Error al entrenar el modelo.");
         }

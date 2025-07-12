@@ -38,7 +38,7 @@ public class FastAPIRepositorio : IFastAPIRepositorio
 
         throw new Exception($"Error al enviar datos: {response.ReasonPhrase}");
     }
-    public async Task<string> EntrenarModeloAsync(EntrenarModelo jsonData)
+    public async Task<IEnumerable<PrediccionesRespuesta>> EntrenarModeloAsync(EntrenarModelo jsonData)
     {
         _httpClient.DefaultRequestHeaders.Clear();
         _httpClient.DefaultRequestHeaders.Add("api-key", _apiKey);
@@ -49,7 +49,8 @@ public class FastAPIRepositorio : IFastAPIRepositorio
 
         if (response.IsSuccessStatusCode)
         {
-            return await response.Content.ReadAsStringAsync();
+            var responseBody = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<List<PrediccionesRespuesta>>(responseBody);
         }
 
         throw new Exception($"Error al entrenar modelo: {response.ReasonPhrase}");
