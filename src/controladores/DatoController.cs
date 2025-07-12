@@ -1,7 +1,6 @@
 ﻿using GPScript.NET.src.aplicaciones.DTOs.jsonDTOs;
 using GPScript.NET.src.aplicaciones.servicios.interfaces;
 using GPScript.NET.src.controladores.ayudadores;
-using GPScript.NET.src.infraestructura.repositorios.interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GPScript.NET.src.controladores;
@@ -27,25 +26,21 @@ public class DatoController : ControllerBase
         {
             return RespuestaAPI.CrearRespuestaError("No se encontraron datos para reducir.");
         }
-        return RespuestaAPI.CrearRespuestaExitosa(resultado);
+        var contador = resultado.Count();
+        return RespuestaAPI.CrearRespuestaExitosa(new { contador, resultado });
     }
     [HttpPost("promedio")]
-    public async Task<IActionResult> CalcularPromedioSujetos([FromBody] IEnumerable<JsonCompleto> jsonCompleto)
+    public async Task<IActionResult> CalcularPromedioSujetos([FromBody] JsonCompleto[] jsonCompleto)
     {
         if (jsonCompleto == null || !jsonCompleto.Any())
         {
             return RespuestaAPI.CrearRespuestaError("No se proporcionaron datos para calcular el promedio.");
         }
-        var jsonReducido = await _datoServicio.ReducirJson(jsonCompleto.ToArray());
-        if (jsonReducido == null || !jsonReducido.Any())
+        var promedios = await _datoServicio.CalcularPromedioSujetos(jsonCompleto);
+        if (promedios == null || !promedios.Any())
         {
-            return RespuestaAPI.CrearRespuestaError("No se encontraron datos para reducir.");
+            return RespuestaAPI.CrearRespuestaError("No se encontraron promedios calculados.");
         }
-        var resultado = await _datoServicio.CalcularPromedioSujetos(jsonReducido);
-        if (resultado == null || !resultado.Any())
-        {
-            return RespuestaAPI.CrearRespuestaError("No se encontraron datos para calcular el promedio.");
-        }
-        return RespuestaAPI.CrearRespuestaExitosa(resultado);
+        return RespuestaAPI.CrearRespuestaExitosa(promedios);
     }
 }

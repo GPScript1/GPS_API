@@ -4,6 +4,8 @@ using dotenv.net;
 using dotenv.net.Utilities;
 using GPScript.NET.src.aplicaciones.servicios.interfaces;
 using GPScript.NET.src.aplicaciones.servicios.implementaciones;
+using GPScript.NET.src.infraestructura.repositorios.implementaciones;
+using GPScript.NET.src.infraestructura.repositorios.interfaces;
 
 DotEnv.Load();
 
@@ -29,6 +31,8 @@ builder.Services.AddDbContext<ContextoDatos>(options =>
     options.UseNpgsql(EnvReader.GetStringValue("POSTGRESQL_CONNECTION")));
 
 builder.Services.AddScoped<IDatoServicio, DatoServicio>();
+builder.Services.AddScoped<IPrediccionServicio, PrediccionServicio>();
+builder.Services.AddHttpClient<IFastAPIRepositorio, FastAPIRepositorio>();
 
 var app = builder.Build();
 
@@ -38,6 +42,5 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
 app.MapControllers();
 app.Run();
