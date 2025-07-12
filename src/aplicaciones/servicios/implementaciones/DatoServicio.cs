@@ -13,9 +13,11 @@ namespace GPScript.NET.src.aplicaciones.servicios.implementaciones;
 public class DatoServicio : IDatoServicio
 {
     private readonly IFastAPIRepositorio _fastAPIRepositorio;
-    public DatoServicio(IFastAPIRepositorio fastAPIRepositorio)
+    private readonly IDatosRepositorio _datosRepositorio;
+    public DatoServicio(IFastAPIRepositorio fastAPIRepositorio, IDatosRepositorio datosRepositorio)
     {
         _fastAPIRepositorio = fastAPIRepositorio;
+        _datosRepositorio = datosRepositorio;
     }
     public async Task<IEnumerable<JsonReducido>> ReducirJson(JsonCompleto[] jsonCompleto)
     {
@@ -265,6 +267,14 @@ public class DatoServicio : IDatoServicio
             throw new Exception("Error al entrenar el modelo.");
         }
         return resultado;
+    }
+    public async Task<bool> GuardarDatosAsync(IEnumerable<GuardadoRespuestas> datos)
+    {
+        return await _datosRepositorio.GuardarDatosAsync(datos);
+    }
+    public async Task<IQueryable<GuardadoRespuestas>> ObtenerDatosAsync(string? ente, string? categoria, int? cantidad = 20, int? pagina = 1)
+    {
+        return await _datosRepositorio.ObtenerDatosAsync(ente, categoria, cantidad, pagina);
     }
     public static DateOnly convertirFecha(string fecha)
     {

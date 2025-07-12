@@ -31,7 +31,7 @@ builder.Services.AddDbContext<ContextoDatos>(options =>
     options.UseNpgsql(EnvReader.GetStringValue("POSTGRESQL_CONNECTION")));
 
 builder.Services.AddScoped<IDatoServicio, DatoServicio>();
-builder.Services.AddScoped<IPrediccionServicio, PrediccionServicio>();
+builder.Services.AddScoped<IDatosRepositorio, DatosRepositorio>();
 builder.Services.AddHttpClient<IFastAPIRepositorio, FastAPIRepositorio>();
 
 var app = builder.Build();
