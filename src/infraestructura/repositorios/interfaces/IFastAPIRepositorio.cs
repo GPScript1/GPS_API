@@ -6,5 +6,5 @@ namespace GPScript.NET.src.infraestructura.repositorios.interfaces;
 public interface IFastAPIRepositorio
 {
     Task<IEnumerable<ClasificadorRespuesta>> EnviarDatosAsync(IEnumerable<PromedioSujeto> jsonData);
-    Task<string> EntrenarModeloAsync(EntrenarModelo jsonData);
+    Task<IEnumerable<PrediccionesRespuesta>> EntrenarModeloAsync(EntrenarModelo jsonData);
 }

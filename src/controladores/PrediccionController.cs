@@ -24,10 +24,10 @@ public class PrediccionController : ControllerBase
             return RespuestaAPI.CrearRespuestaError("No se proporcionaron datos para entrenar el modelo.");
         }
         var resultado = await _datoServicio.EntrenarModeloAsync(jsonCompleto);
-        if (string.IsNullOrEmpty(resultado))
+        if (resultado == null || !resultado.Any())
         {
             return RespuestaAPI.CrearRespuestaError("Error al entrenar el modelo.");
         }
-        return RespuestaAPI.CrearRespuestaExitosa("Modelo entrenado con éxito.");
+        return RespuestaAPI.CrearRespuestaExitosa(resultado);
     }
 }
